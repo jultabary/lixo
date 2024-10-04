@@ -11,7 +11,11 @@ export class RegisterEmployeeCommand implements Command {
   constructor(
     readonly firstName: string,
     readonly lastName: string,
-  ) {}
+  ) {
+    if (!firstName || !lastName) {
+      throw new Error('FistName and LastName must be defined');
+    }
+  }
 }
 
 export class EmployeeRegistered extends Event {

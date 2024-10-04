@@ -18,13 +18,20 @@ export class EmployeeRepositoryInMemory
   async findById(employeeId: EmployeeId): Promise<Employee | undefined> {
     return new Promise((resolve) => {
       resolve(
-        this.persisted_employees.find((employee) => employee.id === employeeId),
+        this.persisted_employees.find(
+          (employee) => employee.id.value === employeeId.value,
+        ),
       );
     });
   }
 
   async save(newEmployee: Employee): Promise<void> {
-    this.persisted_employees.push(newEmployee);
+    const employeeFound = this.persisted_employees.find(
+      (employee) => employee.id.value === newEmployee.id.value,
+    );
+    if (!employeeFound) {
+      this.persisted_employees.push(newEmployee);
+    }
   }
 
   async findAllEmployees(): Promise<EmployeeWithLeaveStatusResponse[]> {
@@ -47,7 +54,7 @@ export class EmployeeRepositoryInMemory
     employeeId: EmployeeId,
   ): Promise<VacationResponse[]> {
     const employee = this.persisted_employees.find(
-      (employee) => employee.id === employeeId,
+      (employee) => employee.id.value === employeeId.value,
     );
     return new Promise((resolve) => {
       resolve(

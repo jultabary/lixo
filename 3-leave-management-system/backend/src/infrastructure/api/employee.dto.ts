@@ -12,3 +12,20 @@ export class RegisterEmployeeDto {
   })
   lastName: string;
 }
+
+export class TakeSomeDaysOff {
+  @ApiProperty({
+    description: 'start date in timestamp',
+    required: true,
+  })
+  startDate: number;
+  @ApiProperty({
+    description: 'end date in timestamp',
+    required: true,
+  })
+  endDate: number;
+  @ApiProperty({
+    required: true,
+  })
+  comment: string;
+}

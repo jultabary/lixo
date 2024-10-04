@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { App } from '../../app';
-import { RegisterEmployeeDto } from './employee.dto';
+import { RegisterEmployeeDto, TakeSomeDaysOff } from './employee.dto';
 import { RegisterEmployeeCommand } from '../../usecases/register_employee.command';
 import {
   AllEmployees,
@@ -15,12 +15,12 @@ import {
 import { UUID } from 'crypto';
 import { EmployeeId } from '../../domain/employee';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { TakeSomeDaysOffCommand } from '../../usecases/take_some_days_off.command';
 
 @Controller('/employee')
 export class EmployeeController {
   constructor(private readonly app: App) {}
 
-  @Post()
   @ApiBody({
     description: 'Employee personnal information',
     required: true,
@@ -31,6 +31,7 @@ export class EmployeeController {
     status: 201,
     description: 'Employee registered.',
   })
+  @Post()
   async registerEmployee(
     @Body() registerEmployeeDto: RegisterEmployeeDto,
   ): Promise<string> {
@@ -59,5 +60,21 @@ export class EmployeeController {
       new GetVacationOfAnEmployeeQuery(EmployeeId.reconstitute(id)),
     )) as VacationsResponse;
     return response.vacations;
+  }
+
+  @Post(':employeeId/vacation')
+  async takeSomeDaysOff(
+    @Param('employeeId') id: UUID,
+    @Body() body: TakeSomeDaysOff,
+  ): Promise<string> {
+    const event = await this.app.dispatchCommand(
+      new TakeSomeDaysOffCommand(
+        EmployeeId.reconstitute(id),
+        new Date(body.startDate),
+        new Date(body.endDate),
+        body.comment,
+      ),
+    );
+    return JSON.stringify(event);
   }
 }
